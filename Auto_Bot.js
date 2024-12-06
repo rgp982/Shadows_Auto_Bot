@@ -10,6 +10,7 @@ function Autostart() {
 	Shared.AddVar('selector', 0);
 	Shared.AddVar('Named Monsters Only', false);
 	Shared.AddVar('Wait Timer', 100);
+	Shared.AddVar('Loot List', 'Default');
 	Orion.Exec('durability', true);
 	
 	//need to move these so if i add they get updated with the gump in here it wont update until Autostart is ran again
@@ -205,7 +206,6 @@ function abilityGUI() {
 	CUSTOM_GUI.AddLine(x-2, y+20, x+60, y+20, 'white', 1); //Bottom
 	CUSTOM_GUI.AddLine(x-2, y, x-2, y+20, 'white', 1); //Left
 	CUSTOM_GUI.AddLine(x+60, y, x+60, y+20, 'white', 1); //Right
-	CUSTOM_GUI.AddHitBox(0, x, y, 60, 20);
 	CUSTOM_GUI.AddTextEntry(serialNumber++, x, y, '1152', Shared.GetVar('Wait Timer'), 60, 20, 6);
 	CUSTOM_GUI.AddTooltip('Time to wait in milliseconds <br> Default 100ms (.1s)');
 	//BUTTON
@@ -363,7 +363,6 @@ function miscGUI() {
 	CUSTOM_GUI.AddLine(x-2, y+20, x+60, y+20, 'white', 1); //Bottom
 	CUSTOM_GUI.AddLine(x-2, y, x-2, y+20, 'white', 1); //Left
 	CUSTOM_GUI.AddLine(x+60, y, x+60, y+20, 'white', 1); //Right
-	CUSTOM_GUI.AddHitBox(0, x, y, 60, 20);
 	CUSTOM_GUI.AddTextEntry(serialNumber++, x, y, '1152', Shared.GetVar('Wait Timer'), 60, 20, 6);
 	CUSTOM_GUI.AddTooltip('Time to wait in milliseconds <br> Default 100ms (.1s)');
 	//BUTTON
@@ -398,9 +397,36 @@ function miscGUI() {
  	x = 50;
  	y = 175;
  	
+ 	//BUTTON
+	CUSTOM_GUI.AddHitBox(serialNumber++, x, y, 45, 20, 1);
+	CUSTOM_GUI.AddText(x, y, getColorStatus('lootCorpse'), '<h2>LOOT</h2>');
+	CUSTOM_GUI.AddText(x, y, '0', ' ', 45);
+	CUSTOM_GUI.AddTooltip('LOOT<br>AGENTS > AUTOLOOT');
+	//BUTTON
+	CUSTOM_GUI.AddHitBox(serialNumber++, x, y+=25, 65, 20, 1);
+	CUSTOM_GUI.AddText(x, y, getColorStatus('mount'), '<h2>MOUNT</h2>');
+	CUSTOM_GUI.AddText(x, y, '0', ' ', 65);
+	CUSTOM_GUI.AddTooltip('MOUNT<br>RE MOUNT / FLY WHEN DISMOUNTED');
+	//TEXT ENTRY
+	CUSTOM_GUI.AddLine(x+60, y-25, x+60+100, y-25, 'white', 1); //Top
+	CUSTOM_GUI.AddLine(x+60, y-5, x+60+100, y-5, 'white', 1); //Bottom
+	CUSTOM_GUI.AddLine(x+60, y-25, x+60, y-5, 'white', 1); //Left
+	CUSTOM_GUI.AddLine(x+60+100, y-25, x+60+100, y-5, 'white', 1); //Right
+	CUSTOM_GUI.AddTextEntry(serialNumber++, x+60, y-25, '1152', Shared.GetVar('Loot List'), 100, 20, 16);
+	CUSTOM_GUI.AddTooltip('NAME OF YOUR LIST<br>FOUND IN ASSISTANT WINDOW > LISTS > FIND');
+	//BUTTON
+	CUSTOM_GUI.AddHitBox(serialNumber++, x+=170, y-=25, 45, 20, 1);
+	CUSTOM_GUI.AddText(x, y, '23', '<h2>SET</h2>');
+	CUSTOM_GUI.AddText(x, y, '0', ' ', 45);
+	CUSTOM_GUI.AddTooltip('SETS AUTOLOOT AGENT TO THIS LIST<br>CAN FIND THE LIST IN AGENTS > AUTOLOOT<br>IF YOU CHANGE NAME OF YOUR LOOT LIST TO "Default"<br>IT WILL ALWAYS BE SET WHEN YOU LOG IN');
+ 	//BUTTON
+	CUSTOM_GUI.AddHitBox(serialNumber++, x-=170, y+=50, 75, 20, 1);
+	CUSTOM_GUI.AddText(x, y, getColorStatus('assist'), '<h2>ASSIST</h2>');
+	CUSTOM_GUI.AddText(x, y, '0', ' ', 75);
+	CUSTOM_GUI.AddTooltip('AUTO ASSIST<br>RE-ARM, TRAP BOX, POTIONS,<br>APPLE, AND PETALS<br> ');
+	
  	CUSTOM_GUI.Update();
 }
-
 function railGUI() {
 	Orion.Wait(100);
 	var CUSTOM_GUI = Orion.CreateCustomGump(271104);
@@ -478,7 +504,6 @@ function railGUI() {
 	CUSTOM_GUI.AddLine(x-2, y+20, x+60, y+20, 'white', 1); //Bottom
 	CUSTOM_GUI.AddLine(x-2, y, x-2, y+20, 'white', 1); //Left
 	CUSTOM_GUI.AddLine(x+60, y, x+60, y+20, 'white', 1); //Right
-	CUSTOM_GUI.AddHitBox(0, x, y, 60, 20);
 	CUSTOM_GUI.AddTextEntry(serialNumber++, x, y, '1152', Shared.GetVar('Wait Timer'), 60, 20, 6);
 	CUSTOM_GUI.AddTooltip('Time to wait in milliseconds <br> Default 100ms (.1s)');
 	//BUTTON
@@ -669,20 +694,17 @@ function responseGUI() {
 	
  	CUSTOM_GUI.Update();
 }
-
 function onClick(){
 	var buttonID = CustomGumpResponse.ReturnCode();
 	var comboBox = CustomGumpResponse.ComboBox(1402);
+	var lootTxtEntry = CustomGumpResponse.Text(1302);
 	var waitTxtEntry = CustomGumpResponse.Text(101);
 	var railTxtEntry = CustomGumpResponse.Text(1400);
 	//Orion.Print(buttonID);
 	//Orion.Print('box ' + comboBox);
 	//Orion.Print('txt ' + railTxtEntry);
-	if (waitTxtEntry !== '') {
+	if (waitTxtEntry !== ' ') {
 		Shared.AddVar('Wait Timer', CustomGumpResponse.Text(101));
-	}
-	if (comboBox === -1 && railTxtEntry !== '' && !getRail()) {
-		Shared.AddVar('Rail Name', railTxtEntry);
 	}
 	
 	if (comboBox >= 0) {
@@ -825,9 +847,33 @@ function onClick(){
 			Orion.ToggleScript('removeForm', true);
 			openGUI();
 			break;
+	// OPTIONAL BUTTONS
+		case 1300:
+			Orion.ToggleScript('lootCorpse', true);
+			openGUI();
+			break;
+		case 1301:
+			Orion.ToggleScript('mount', true);
+			openGUI();
+			break;
+		case 1303:
+			if (waitTxtEntry !== ' ') {
+				Shared.AddVar('Loot List', CustomGumpResponse.Text(1302));
+				Orion.CharPrint(self, '0x09C2', 'Autoloot set to '+ Shared.GetVar('Loot List') + ' list.');
+			} else {
+				Orion.CharPrint(self, '0x09C2', 'You did not enter a list name.');
+			}
+			openGUI();
+			break;
+		case 1304:
+			Orion.ToggleScript('assist', true);
+			openGUI();
+			break;
 	// RAIL MAKER BUTTONS
 		case 1401:
-			if (comboBox === -1 && railTxtEntry === '') { return; }
+			if ( railTxtEntry !== '' ) {
+				Shared.AddVar('Rail Name', railTxtEntry);
+			}
 			createFile();
 			openGUI();
 			break;
@@ -898,7 +944,7 @@ function openGUI() {
 		Orion.Exec('minGUI', true);
 	}
 }
-//--# ACTION FUNCTIONS
+//--# ABILITY FUNCTIONS
 function attack() {
 	var namedMonsters = Shared.GetVar('Named Monsters');
 	while (true) {
@@ -923,15 +969,15 @@ function attack() {
 		
 		} else if (mob.Exists() && mob.Distance() <= RANGE) {
 			if ( RANGE === 1 && ( mob.Z() < Player.Z() -14 || mob.Z() > Player.Z() +14 ) ) {
-				Orion.Print( mob.Name() +' Z-axis:'+ mob.Z() +' not within bounds of my Z-axis:'+ Player.Z() +', as such ignoring.');
+				//Orion.Print( mob.Name() +' Z-axis:'+ mob.Z() +' not within bounds of my Z-axis:'+ Player.Z() +', as such ignoring.');
 				Orion.Ignore(mob.Serial());
 				continue;
 		
-			} else if ( RANGE > 1 && !mob.InLOS() && !Orion.Contains(mob.Properties(), namedMonsters) ) {
+			} else if ( RANGE > 1 && !mob.InLOS() ) {
 				Orion.WalkTo(mob.X(), mob.Y(), mob.Z(), 1, 255, 1, 1, 5000);
 				Orion.Attack(mob.Serial());
 				if ( !mob.InLOS() && !Orion.Contains(mob.Properties(), namedMonsters) ) {
-					Orion.Print( mob.Name() +' is at distance '+ mob.Distance() +' and line of sight is '+ mob.InLOS() +', therefore ignoring.');
+					//Orion.Print( mob.Name() +' is at distance '+ mob.Distance() +' and line of sight is '+ mob.InLOS() +', therefore ignoring.');
 					Orion.Ignore(mob.Serial());
 					continue;
 				}
@@ -1805,6 +1851,191 @@ function useRepairBench() {
 		Orion.Print('Done.');
 	}
 }
+//--# OPTIONAL FUNCTIONS
+function lootCorpse() {
+	while ( true ) {
+		Orion.Wait(Shared.GetVar('Wait Timer'));
+		const CORPSES = Orion.FindTypeEx('0x2006', any, ground, '', 11);
+		var lewt = Shared.GetVar('Loot List');
+		
+		if ( lewt == null ) {
+			Orion.CharPrint(self, '0x09C2', 'Loot list not set!');
+			Orion.Wait(5000);
+			continue;
+		}
+		if ( CORPSES.length ) {
+			Orion.StopWalking();
+			if ( Orion.ScriptRunning('attack') || Orion.ScriptRunning('walkRail') ) {
+				Orion.PauseScript('attack');
+				Orion.PauseScript('walkRail');
+			}
+			CORPSES.forEach(function (corpse) {
+				if (Player.Weight() < Player.MaxWeight() * .9) {
+					if (corpse.Distance() > 2) {
+						Orion.WalkTo(corpse.X(), corpse.Y(), corpse.Z(), 1, 255, 1, 1, 10000);
+					}
+					
+					Orion.UseObject(corpse.Serial());
+					Orion.Wait('useitemdelay');
+					var lxwt = Orion.MoveItemList(lewt, corpse.Serial(), 0, backpack);
+					
+					while (lxwt) {
+						lxwt = Orion.MoveItemList(lewt, corpse.Serial(), 0, backpack);
+						Orion.Wait('moveitemdelay');
+						
+						if (Orion.InJournal('too far', 'sys', '0', 'any', Orion.Now() - 1500)) {
+							break;
+						}
+					}
+				}
+				Orion.Ignore(corpse.Serial());
+			});
+			if ( Orion.ScriptRunning('attack') === -1 || Orion.ScriptRunning('walkRail') === -1 ) {
+				Orion.ResumeScript('attack');
+				Orion.ResumeScript('walkRail');
+			}
+		}
+	}
+}
+function mount(){ // find way to tell if mount is mountable??
+	while ( true ) {
+		Orion.Wait(Shared.GetVar('Wait Timer'));
+		
+		var mount = Orion.FindTypeEx('!0x00A5', any, ground, 'canchangename|live|nothuman', 1);
+		var mounts = Orion.FindTypeEx('!0x00A5', any, ground, 'canchangename|live|nothuman', 20);
+		var ethy = Orion.FindTypeEx(any, any, backpack);
+		var monstersNear8Mount = Orion.FindTypeEx('!0x00A4|!0x033D|!0x002F|!0x2006', any, ground, 'mobile|ignoreself|ignorefriends|inlos', 8, 'gray|criminal|orange|red');
+	
+		if(Player.Graphic() !== 0x029A && Player.Graphic() !== 0x029B && !Player.Frozen()){
+			if ( Player.Followers() > 0 && mounts.length ) {	
+				for ( var i = 0; i < mounts.length; i++ ) {
+					if ( mounts[i].Distance() > 2 && !Orion.ObjAtLayer('Mount') && Orion.Timer('AFM') >= -1 ) {
+						Orion.Say('All Follow Me');
+						Orion.SetTimer('AFM', -10000);
+					}
+				}
+			}
+			if(Player.Followers() > 0 && mount.length){
+				for(var mt = 0; mt < mount.length; mt++){
+					if(!mount[mt].Poisoned()){
+						Orion.UseObject(mount[mt].Serial());
+					}
+				}
+			} else if(monstersNear8Mount = null || !monstersNear8Mount.length){
+				if(ethy.length){
+					for(var e = 0; e < ethy.length; e++){
+						if(Orion.Contains(ethy[e].Properties(), 'ethereal|statuette')){
+							Orion.UseObject(ethy[e].Serial());
+						}
+					}
+				}
+			}
+		} else if(!Player.Flying() && !Player.Frozen() && (Player.Graphic() == 0x029A || Player.Graphic() == 0x029B) && (monstersNear8Mount = null || !monstersNear8Mount.length)){
+			Orion.CreateClientMacro('ToggleGargoyleFlying').Play();
+		}
+	}
+}
+function assist() {
+	var noWepToggle = true;
+	if(!Orion.ObjAtLayer('RightHand')){
+		noWepToggle = false;
+	}
+	while ( true ) {
+		Orion.Wait(Shared.GetVar('Wait Timer'));
+		
+		if ( Orion.BuffExists('Invisibility') || !Orion.BuffExists('Hiding') ) { continue; }
+		if ( Orion.DisplayTimerExists('action') ) { continue; }
+		
+		var monstersNear = Orion.FindTypeEx('!0x00A4|!0x033D|!0x002F', any, ground, 'mobile|ignoreself|ignorefriends|inlos', 1, 'gray|criminal|orange|red');
+		var targetSerial = Orion.ClientLastTarget();
+		var target = Orion.FindObject(targetSerial);
+		var box = Orion.FindType('0x09A9', any, backpack);
+		
+		if ( target == null ) { continue; }
+		if ( target.Distance() > 11 ) { continue; }
+		if ( !monstersNear.length ) { continue; }
+		
+		if((Orion.ObjAtLayer('RightHand') || Orion.ObjAtLayer('LeftHand') && Orion.Contains(Orion.ObjAtLayer('LeftHand').Properties(), 'Two-handed')) && noWepToggle === false){
+			noWepToggle = true;
+		}
+		if((!Orion.ObjAtLayer('LeftHand') && !Orion.ObjAtLayer('RightHand')) || (!Orion.ObjAtLayer('RightHand') && !Orion.Contains(Orion.ObjAtLayer('LeftHand').Properties(), 'Two-handed')) && noWepToggle === true){
+			if(!Orion.BuffExists('Disarm') && !Player.Frozen()){
+				Orion.CreateClientMacro('EquipLastWeapon').Play();
+				Orion.AddDisplayTimer('action', 1450, 'AboveChar', 'line|bar', 'Wep', 0, 0, '0x09C2', 1, '0xFFFFFFFF');
+				Orion.DisplayTimerSetSize('action', 20, 0);
+				Orion.DisplayTimerSetShowTime('action', false);
+			}
+			
+		} else if(Orion.Count('0x2FD8', '0x0488') && Orion.Timer('appleCooldown') >= -1 && (Orion.BuffExists('Blood Oath') || Orion.BuffExists('Curse') || Orion.BuffExists('Corpse Skin'))){
+         	Orion.UseType('0x2FD8', '0x0488');
+         	Orion.Wait(100);
+     		var journalMessage = Orion.InJournal('A tasty bite','sys|my','0',any,Orion.Now()-1450, Orion.Now());
+     		Orion.Print('The journal message is ' + journalMessage);
+         	if (journalMessage !== null) {
+            	Orion.SetTimer('appleCooldown', -30000);
+            	Orion.ClearJournal('A tasty bite','sys|my');
+            }
+         	Orion.AddDisplayTimer('action', 1450, 'AboveChar', 'line|bar', 'Apple', 0, 0, '0x09C2', 1, '0xFFFFFFFF');
+			Orion.DisplayTimerSetSize('action', 20, 0);
+			Orion.DisplayTimerSetShowTime('action', false);
+			
+     	} else if(Player.Hits('%') < 55 && !Player.Poisoned() && !Player.YellowHits() && Orion.Timer('healPotCooldown') >= -1 && Orion.Count('0x0F0C','0x0000')){
+     		Orion.UseType('0x0F0C');
+     		Orion.SetTimer('healPotCooldown', -10050);
+     		Orion.AddDisplayTimer('action', 1450, 'AboveChar', 'line|bar', 'Heal', 0, 0, '0x09C2', 1, '0xFFFFFFFF');
+     		Orion.DisplayTimerSetSize('action', 20, 0);
+     		Orion.DisplayTimerSetShowTime('action', false);
+     		
+     	} else if(box.length && !Orion.DisplayTimerExists('action') && (Orion.BuffExists('Evil Omen') || Orion.BuffExists('Paralyzed') || Orion.BuffExists('Paralyze') || Orion.InJournal('crippling nerve strike','sys',any, any, Orion.Now() - 1500, Orion.Now()))){
+			Orion.ClearJournal('crippling nerve strike','sys');
+			Orion.Wait(750);
+			Orion.UseObject(box);
+			Orion.WaitForContainerGump();
+			Orion.CloseGump('container', Orion.GetSerial(box));
+			Orion.AddDisplayTimer('action', 1450, 'AboveChar', 'line|bar', 'Box', 0, 0, any, -1, '0xFFB0B0FE');
+			Orion.DisplayTimerSetSize('action', 20, 0);
+			Orion.DisplayTimerSetShowTime('action', false);
+			
+		} else if(Player.Poisoned() && !Player.YellowHits() && Orion.Count('0x0F07','0x0000')){
+     		Orion.UseType('0x0F07');
+     		Orion.AddDisplayTimer('action', 1450, 'AboveChar', 'line|bar', 'Cure', 0, 0, '0x09C2', 1, '0xFFFFFFFF');
+     		Orion.DisplayTimerSetSize('action', 20, 0);
+     		Orion.DisplayTimerSetShowTime('action', false);
+     		
+     	} else if(Player.Stam('%') < 80 && Orion.Count('0x0F0B','0x0000')){
+        	Orion.UseType('0x0F0B');
+         	Orion.AddDisplayTimer('action', 1450, 'AboveChar', 'line|bar', 'Refresh', 0, 0, '0x09C2', 1, '0xFFFFFFFF');
+			Orion.DisplayTimerSetSize('action', 20, 0);
+			Orion.DisplayTimerSetShowTime('action', false);
+			
+     	} else if(!Orion.BuffExists('Strength') && Orion.Count('0x0F09', '0x0000')){
+         	Orion.UseType('0x0F09','0x0000');
+         	Orion.AddDisplayTimer('action', 1450, 'AboveChar', 'line|bar', 'Strength', 0, 0, '0x09C2', 1, '0xFFFFFFFF');
+			Orion.DisplayTimerSetSize('action', 20, 0);
+			Orion.DisplayTimerSetShowTime('action', false);
+			
+     	} else if(!Orion.BuffExists('Agility') && Orion.Count('0x0F08','0x0000')){
+        	Orion.UseType('0x0F08');
+         	Orion.AddDisplayTimer('action', 1450, 'AboveChar', 'line|bar', 'Agility', 0, 0, '0x09C2', 1, '0xFFFFFFFF');
+			Orion.DisplayTimerSetSize('action', 20, 0);
+			Orion.DisplayTimerSetShowTime('action', false);
+			
+     	} else if(!Orion.BuffExists('orange petals') && Orion.Count('0x1021', '0x002B') && Orion.Timer('orangePetalCooldown') >= -1){
+         	Orion.UseType('0x1021', '0x002B');
+         	Orion.SetTimer('orangePetalCooldown',-300000);
+         	Orion.AddDisplayTimer('action', 1450, 'AboveChar', 'line|bar', 'Orange Petal', 0, 0, '0x09C2', 1, '0xFFFFFFFF');
+			Orion.DisplayTimerSetSize('action', 20, 0);
+			Orion.DisplayTimerSetShowTime('action', false);
+			
+     	} else if(!Orion.BuffExists('rose of trinsic petals') && Orion.Count('0x1021', '0x000E') && Orion.Timer('purplePetalCooldown') >= -1){
+         	Orion.UseType('0x1021', '0x000E');
+         	Orion.SetTimer('purplePetalCooldown',-300000);
+         	Orion.AddDisplayTimer('action', 1450, 'AboveChar', 'line|bar', 'Purple Petal', 0, 0, '0x09C2', 1, '0xFFFFFFFF');
+			Orion.DisplayTimerSetSize('action', 20, 0);
+			Orion.DisplayTimerSetShowTime('action', false);
+     	}
+    }
+}
 //--# MODULE FUNCTIONS
 function getStatus(scriptName) {
 	const scriptRunning = Orion.ScriptRunning(scriptName) > 0;
@@ -2177,7 +2408,7 @@ function getTarget(){
 				
 				if (mob.length && !Orion.Contains(mob[i].Properties(), Shared.GetVar('Ignore Prop')) ) {
 					if (mob[i].Distance() > RANGE + 1  && mob !== undefined && (PATH_ARR.length === RANGE - 1 || PATH_ARR.length >= 100)) {
-						Orion.Print( 'can not reach, ignoring '+ mob[i].Name() +' accordingly' );
+						//Orion.Print( 'can not reach, ignoring '+ mob[i].Name() +' accordingly' );
 						Orion.Ignore(mob[i].Serial());
 						continue;
 					}
@@ -2224,17 +2455,9 @@ function getGroupedTargets() {
 	for ( var i = 0, count = monstersNear.length; i < count; i++ ) {
 		if ( monstersNear[i].Serial() === target.Serial() ) { continue; }
 		if ( monstersNear[i].X() > targetXMin && monstersNear[i].X() < targetXMax && monstersNear[i].Y() > targetYMin && monstersNear[i].Y() < targetYMax ) {
-			Orion.AddHighlightCharacter(monstersNear[i].Serial(), 123456, true);
+			//Orion.AddHighlightCharacter(monstersNear[i].Serial(), 123456, true);
 			aoe = true;
 			break;
-			//Orion.Print(monstersNear[i].Name());
-			//Orion.AddHighlightCharacter(monstersNear[i].Serial(), 123456, true);
-			//mobCount++;
-			//if ( mobCount >= 1 ) {
-				//Orion.AddHighlightCharacter(monstersNear[i].Serial(), 123456, true);
-				//aoe = true;
-				//break;
-			//}
 		}
 	}
 	return aoe;
@@ -2292,7 +2515,6 @@ function getDurability() {
 			const MIN_DURABILITY = Number(value[2]) * .3;
 			
 			if(value.length > 2 && Number(value[1]) < MIN_DURABILITY){
-				//Orion.Print(item.Name() + ' [' + value[1] + '/' + value[2] + ']');
 				itemsToRepair.push(item.Serial());
 			}
 		}
@@ -2333,7 +2555,6 @@ function getMapNumber() { // 0 fell, 5 ter mur
     if (Player.Map() !== Orion.FindObject(backpack).Map()) {
         playerMap = Orion.FindObject(backpack).Map();
 	}
-	//Orion.Print(playerMap);
 	return playerMap;
 }
 function calculateCenteredX(guiWidth, text, averageCharWidth) {
