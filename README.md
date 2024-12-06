@@ -14,4 +14,5 @@ The first time running the script if you do not have the Autostart option select
 
 After this setup it will always run upon login.
 
-![MainGUI](https://github.com/user-attachments/assets/4017d758-c426-4c43-b07d-474bb90f3a01)
+![MainGUI](https://github.com/user-attachments/assets/9162d4af-a654-4fb3-8261-d092e23cfacc)
+
